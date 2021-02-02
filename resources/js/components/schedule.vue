@@ -41,26 +41,28 @@
             </div>
         </div>
 
-        <!-- <div>
-            <b-button v-b-modal.modal-1>Launch demo modal</b-button>
-
-            <b-modal id="modal-1" title="BootstrapVue">
-                <p class="my-4">Hello from modal!</p>
-            </b-modal>
-        </div> -->
-
         <div class="row mt-3">
 
             <div class="col-12 my-2">
 
-                <div class="row">
+                <div class="row mb-5">
 
-                    <div class="col-3 text-center" v-for="(f, index) in flowers" :key="index"  data-toggle="modal" data-target="#exampleModal">
+                    <div class="col-3 text-center" v-b-modal.modal-1 v-for="(f, index) in flowers" :key="index" @click="comparador = index">
 
                         <img :src="`/storage/${f.image}`" :alt="f.species" width="80%" 
                         class="img-thumbnail rounded-circle" style="height: 190px">
 
                         <p class="mt-2">{{f.name}}</p>
+
+                        <b-modal id="modal-1" v-if="index == comparador">
+                            <img :src="`/storage/${f.image}`" :alt="f.species" width="80%" class="img-thumbnail" style="height: 190px">
+ 
+                            <p class="mt-2">{{f.name}}</p>
+
+                            <p class="mt-2">{{f.description}}</p>
+
+                            <p class="mt-2">Abelhas</p>
+                        </b-modal>
                     </div> 
                 </div>
             </div>
@@ -81,7 +83,8 @@
                     months_id: [],
                     bees_id: []
                 },
-                flowers: []
+                flowers: {},
+                comparador: null,
             }
         },
         mounted() {
