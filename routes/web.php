@@ -15,3 +15,7 @@ Route::get('/getBees', 'BeeController@getBees');
 Route::get('/getMonths', 'MonthController@getMonths');
 
 Route::post('/createBee', 'BeeController@createBee');
+
+Route::post('/createFlower', 'FlowerController@createFlower');
+
+Route::get('/searchFlowers', 'FlowerController@searchFlowers');

@@ -8,14 +8,13 @@
                 Podem ser agrupadas pelos meses que florescem e / ou <br>
                 pelo tipo de abelha que poliniza a flor. </p>
             </div>
-            <div class="col-md-4 text-center">
+
+            <div class="col-md-4 text-right">
 
                 <router-link to="/flowerinsert" class="btn btn-secondary col-8 my-2">Cadastrar flores</router-link>
 
                 <router-link to="/beeinsert" class="btn btn-secondary col-8">Cadastrar abelha</router-link>
-
             </div>
-
         </div>
 
         <div class="row mt-3">
@@ -23,9 +22,8 @@
                 
                 <label> Selecione as abelhas </label>
 
-                <multiselect v-model="bees_id" :options="bees" :multiple="true" :close-on-select="false" :clear-on-select="false" :preserve-search="true" label="common_name" track-by="id">
+                <multiselect v-model="flower.bees_id" :options="bees" :multiple="true" :close-on-select="false" :clear-on-select="false" :preserve-search="true" label="common_name" track-by="id">
                 </multiselect>
-
             </div>
         </div>
 
@@ -35,73 +33,63 @@
 
                 Escolha os meses:
 
-                <div class="row">
-
-                    <div class="border text-center py-3 px-4 m-2" v-for="(m, index) in months" :key="index">
-                        <p>{{ m.name.substr(0, 3) }}</p>
+                <div class="row text-center mx-auto">
+                    <div class="border text-center py-3 px-4 m-2" v-for="(item) in months" :key="item.id" v-bind:class="{ active: flower.months_id == item, 'bg-primary': exists(item)[0] ? false : true }" @click="meucasal(item)">
+                        <p>{{ item.name.substr(0, 3) }}</p>
                     </div>
-
                 </div>
             </div>
-
         </div>
+
+        <!-- <div>
+            <b-button v-b-modal.modal-1>Launch demo modal</b-button>
+
+            <b-modal id="modal-1" title="BootstrapVue">
+                <p class="my-4">Hello from modal!</p>
+            </b-modal>
+        </div> -->
 
         <div class="row mt-3">
 
             <div class="col-12 my-2">
 
                 <div class="row">
-                    <div class="col-3">
 
-                        <img src="#" alt="Nome da flor">
+                    <div class="col-3 text-center" v-for="(f, index) in flowers" :key="index"  data-toggle="modal" data-target="#exampleModal">
 
-                        <p>Nome da flor</p>
+                        <img :src="`/storage/${f.image}`" :alt="f.species" width="80%" 
+                        class="img-thumbnail rounded-circle" style="height: 190px">
 
-                    </div>
-
-                    <div class="col-3">
-
-                        <img src="#" alt="Nome da flor">
-
-                        <p>Nome da flor</p>
-
-                    </div>
-
-                    <div class="col-3">
-
-                        <img src="#" alt="Nome da flor">
-
-                        <p>Nome da flor</p>
-
-                    </div>
-
-                    <div class="col-3">
-
-                        <img src="#" alt="Nome da flor">
-
-                        <p>Nome da flor</p>
-
-                    </div>
+                        <p class="mt-2">{{f.name}}</p>
+                    </div> 
                 </div>
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
-
     export default {
         data() {
             return {
-                bees_id: null,
                 bees: [],
                 months: [],
+                bees_id: [],
+                months_id: [],
+                flower: {
+                    months_id: [],
+                    bees_id: []
+                },
+                flowers: []
             }
         },
         mounted() {
             this.getBees();
 
             this.getMonths();
+
+            this.searchFlowers();
         },
         methods: {
             getBees() {
@@ -115,6 +103,51 @@
 
                     this.months = data.data
                 ));
+            },
+            meucasal(item) {
+                
+                var chinchila = this.exists(item);
+
+                if(chinchila[0] == false) {
+                    this.flower.months_id.splice(chinchila[1], 1);
+                    this.months_id.splice(chinchila[1], 1);
+                } else {
+                    this.flower.months_id.push(item);
+                    this.months_id.push(item);
+                }
+
+                return chinchila;
+            },
+            exists(item) {
+
+                let position = 0;
+
+                var chinchila = this.flower.months_id.every(function(el, index) {
+
+                    if(el.id == item.id) {
+                        position = index;
+                        return false;
+                    } else { 
+                        return true;
+                    }
+                });
+
+                return [chinchila, position];
+            },
+            searchFlowers() {
+
+                axios.get('/searchFlowers', {params: this.flower}).then(data => (
+
+                    this.flowers = data.data
+                ));
+            }
+        },
+        watch: {
+            'flower.bees_id' (val) {
+                this.searchFlowers();
+            },
+            'flower.months_id' (val) {
+                this.searchFlowers();
             }
         }
     }
